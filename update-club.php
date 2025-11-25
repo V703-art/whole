@@ -1,22 +1,27 @@
 <?php
 include("db.php");
 
-// Make sure POST fields exist
+// Ensure required POST fields exist
 if (!isset($_POST['id'], $_POST['football_club'], $_POST['football_description'])) {
-    die("fullstackassignment.php.");
+    die("Missing required fields.");
 }
 
-$original_club = trim($_POST['id']);
+$id = intval($_POST['id']); // ID must be integer
 $club = trim($_POST['football_club']);
 $desc = trim($_POST['football_description']);
 
-// Prepare statement to prevent SQL injection
+// Prepare SQL to update club
 $stmt = $mysqli->prepare(
     "UPDATE football_clubs
      SET football_club = ?, football_description = ?
-     WHERE football_club = ?"
+     WHERE id = ?"
 );
-$stmt->bind_param("sss", $club, $desc, $original_club);
+
+if (!$stmt) {
+    die("Prepare failed: " . $mysqli->error);
+}
+
+$stmt->bind_param("ssi", $club, $desc, $id);
 
 if (!$stmt->execute()) {
     die("Update failed: " . $stmt->error);
@@ -24,7 +29,7 @@ if (!$stmt->execute()) {
 
 $stmt->close();
 
-// Redirect back to index or list page
-header("Location: index.php");
+// Redirect back to main page
+header("Location: fullstackassignment.php");
 exit();
 ?>
