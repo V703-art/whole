@@ -11,7 +11,8 @@
     header("X-Content-Type-Options: nosniff");
     header("Referrer-Policy: no-referrer");
     header("X-XSS-Protection: 1; mode=block");
-    header("Content-Security-Policy: default-src 'self'; img-src 'self'; style-src 'self' 'unsafe-inline';");
+    // CSP updated: allow local JS file instead of inline
+    header("Content-Security-Policy: default-src 'self'; img-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self';");
     session_start();
 
     /* ---------------- CSRF TOKEN SETUP ---------------- */
@@ -51,6 +52,8 @@
       a.delete { background-color: #dc3545; }
       a.delete:hover { background-color: #c82333; }
       a.club-link { color: #FFD700; text-decoration: underline; }
+      button.delete { background-color: #dc3545; border: none; color: #fff; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+      button.delete:hover { background-color: #c82333; }
     </style>
 
 </head>
@@ -114,19 +117,16 @@ $results = $stmt->get_result();
 
         <tr>
           <td>
-            <a class="club-link" href="club-details.php?id=<?=$urlClub?>">
-              <?=$safeClub?>
-            </a>
+            <a class="club-link" href="club-details.php?id=<?=$urlClub?>"><?=$safeClub?></a>
           </td>
           <td>
             <a class="button edit" href="edit-club.php?id=<?=$urlClub?>">Edit</a>
 
-            <!-- DELETE MUST BE POST + CSRF -->
-            <form method="POST" style="display:inline;" 
-                  onsubmit="return confirm('Are you sure you want to delete this club?');">
+            <!-- DELETE FORM (no inline JS) -->
+            <form method="POST" style="display:inline;" class="delete-form">
               <input type="hidden" name="delete" value="<?=$safeClub?>">
               <input type="hidden" name="csrf_token" value="<?=$csrf?>">
-              <button class="button delete" type="submit">Delete</button>
+              <button class="delete" type="submit">Delete</button>
             </form>
 
           </td>
@@ -139,6 +139,9 @@ $results = $stmt->get_result();
 <?php else: ?>
   <p>No football clubs found.</p>
 <?php endif; ?>
+
+<!-- EXTERNAL JS FOR DELETE CONFIRM -->
+<script src="delete.js"></script>
 
 </body>
 </html>
