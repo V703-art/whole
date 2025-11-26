@@ -1,20 +1,38 @@
-// Wait until the page is fully loaded
 document.addEventListener("DOMContentLoaded", () => {
 
-  // Select all forms with class 'delete-form'
-  const deleteForms = document.querySelectorAll('.delete-form');
+  const correctCode = "1234"; // <-- set your 4-digit code here
+  const modal = document.getElementById('code-modal');
+  const input = document.getElementById('access-code');
+  const unlockBtn = document.getElementById('unlock-btn');
+  const errorMsg = document.getElementById('error-msg');
 
-  // Add a submit event listener to each form
+  // Initially disable all delete buttons
+  const deleteButtons = document.querySelectorAll('.delete');
+  deleteButtons.forEach(btn => btn.disabled = true);
+
+  // Unlock button event
+  unlockBtn.addEventListener('click', () => {
+    if (input.value === correctCode) {
+      // Hide modal
+      modal.style.display = 'none';
+      // Enable delete buttons
+      deleteButtons.forEach(btn => btn.disabled = false);
+    } else {
+      errorMsg.textContent = "Incorrect code. Try again!";
+      input.value = "";
+      input.focus();
+    }
+  });
+
+  // DELETE CONFIRMATION (still works after unlocking)
+  const deleteForms = document.querySelectorAll('.delete-form');
   deleteForms.forEach(form => {
     form.addEventListener('submit', (e) => {
-
-      // Show a confirmation popup
       const confirmed = confirm("Are you sure you want to delete this club?");
-
-      // If user clicks "Cancel", prevent form submission
       if (!confirmed) {
         e.preventDefault();
       }
     });
   });
+
 });
