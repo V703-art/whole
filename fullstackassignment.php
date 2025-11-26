@@ -11,7 +11,7 @@
     header("X-Content-Type-Options: nosniff");
     header("Referrer-Policy: no-referrer");
     header("X-XSS-Protection: 1; mode=block");
-    // CSP updated: allow local JS file instead of inline
+    // CSP updated: allow local JS file only
     header("Content-Security-Policy: default-src 'self'; img-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self';");
     session_start();
 
@@ -54,13 +54,34 @@
       a.club-link { color: #FFD700; text-decoration: underline; }
       button.delete { background-color: #dc3545; border: none; color: #fff; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; }
       button.delete:hover { background-color: #c82333; }
+      /* Modal Styles */
+      #code-modal h2 { margin-bottom: 10px; }
+      #code-modal input { padding: 6px; border-radius: 4px; border: none; }
+      #code-modal button { transition: 0.2s; }
+      #code-modal button:hover { background: #2563eb; }
     </style>
-
 </head>
 <body>
 
 <img src="football.png" class="logo" alt="Football Logo">
 <h1>Premier League Football Clubs!</h1>
+
+<!-- CODE UNLOCK MODAL -->
+<div id="code-modal" style="
+    position: fixed; top:0; left:0; width:100%; height:100%; 
+    background: rgba(0,0,0,0.95); color: #fff; display:flex; 
+    flex-direction: column; justify-content: center; align-items: center;
+    z-index: 9999;
+">
+  <h2>Enter 4-Digit Code to Unlock Delete Feature</h2>
+  <input type="password" id="access-code" maxlength="4" style="font-size:20px; text-align:center; width:80px; margin-top:10px;">
+  <button id="unlock-btn" style="
+      margin-top:15px; padding:6px 12px; font-size:16px; 
+      border-radius:4px; background:#1d4ed8; color:#fff; border:none;
+      cursor:pointer;
+  ">Unlock</button>
+  <p id="error-msg" style="color:#f87171; margin-top:10px;"></p>
+</div>
 
 <?php
 include("db.php");
@@ -122,7 +143,7 @@ $results = $stmt->get_result();
           <td>
             <a class="button edit" href="edit-club.php?id=<?=$urlClub?>">Edit</a>
 
-            <!-- DELETE FORM (no inline JS) -->
+            <!-- DELETE FORM (disabled until code unlocks) -->
             <form method="POST" style="display:inline;" class="delete-form">
               <input type="hidden" name="delete" value="<?=$safeClub?>">
               <input type="hidden" name="csrf_token" value="<?=$csrf?>">
@@ -140,7 +161,7 @@ $results = $stmt->get_result();
   <p>No football clubs found.</p>
 <?php endif; ?>
 
-<!-- EXTERNAL JS FOR DELETE CONFIRM -->
+<!-- EXTERNAL JS FOR DELETE + CODE UNLOCK -->
 <script src="delete.js"></script>
 
 </body>
